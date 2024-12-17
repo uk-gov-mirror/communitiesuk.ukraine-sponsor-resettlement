@@ -1,14 +1,20 @@
-const element = require('../../pages/EOI/eoi_date')
+const elements = require('../../page_elements/EOI/eoi_elements')
+const errors = require('../../../fixtures/eoi_bodytext_errors.json')
 
 describe('[Frontend-UI]: EOI DATE', function () {
-  this.beforeAll(() => {
-    cy.clearCookie('_ukraine_sponsor_resettlement_session')
-  });
-  Cypress.Cookies.defaults({ preserve: '_ukraine_sponsor_resettlement_session' })
-
   context('Specific Date Validations', function () {
+    beforeEach(function() {
+      cy.visit('/expression-of-interest/steps/9')
+    })
+    it("has the expected page heading", function () {
+      cy.get(elements.start_hosting_heading).contains('How soon can you start hosting someone?').should('be.visible')
+    })
     it("date error validations [all fields blank]", function () {
-      element.date_null()
+      cy.get(elements.continue_button).click()
+      cy.get(elements.sdate_radiobtn_error_label).contains(errors.radiobtn_error_msg).should('be.visible')
+      cy.get(elements.specific_date_radiobtn_error).click()
+      cy.get(elements.continue_button).click()
+      cy.get(elements.sdate_error_label).contains('Enter a valid start date').should('be.visible') 
     })
     it("date error validations [one field filled 'dd/mm/yyyy']", function () {
       element.date_v1()

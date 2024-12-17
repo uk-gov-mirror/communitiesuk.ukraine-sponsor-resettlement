@@ -1,11 +1,6 @@
 const element = require('../../pages/EOI/eoi_links')
 
 describe('[Frontend-UI]: EOI PAGE LINKS', function () {
-  this.beforeAll(() => {
-    cy.clearCookie('_ukraine_sponsor_resettlement_session')
-  });
-  Cypress.Cookies.defaults({ preserve: '_ukraine_sponsor_resettlement_session' })
-
   context('Header', function () {
     it('Page links validation [Header: Gov.UK]', function () {
       element.links_validation_govuk()
@@ -53,7 +48,4 @@ describe('[Frontend-UI]: EOI PAGE LINKS', function () {
       element.links_validation_step_16()
     })
   })
-  this.afterAll(() => {
-    cy.clearCookie('_ukraine_sponsor_resettlement_session')
-  });
 })

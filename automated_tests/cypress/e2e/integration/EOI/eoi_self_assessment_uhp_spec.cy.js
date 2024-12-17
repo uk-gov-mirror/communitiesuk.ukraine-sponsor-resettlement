@@ -1,11 +1,6 @@
 const element = require('../../pages/EOI/eoi_self_assessment_uhp')
 
 describe('[Frontend-UI]: EOI SELF ASSESSMENT UHP', function () {
-  this.beforeAll(() => {
-    cy.clearCookie('_ukraine_sponsor_resettlement_session')
-  });
-  Cypress.Cookies.defaults({ preserve: '_ukraine_sponsor_resettlement_session' })
-
   context('Self Assessment', function () {
     it('verify self assessment [Start Page]', function () {
       element.eoi_eligibility_check_start()
@@ -23,7 +18,4 @@ describe('[Frontend-UI]: EOI SELF ASSESSMENT UHP', function () {
       element.eoi_eligibility_check_need_information()
     })
   })
-    this.afterAll(() => {
-      cy.clearCookie('_ukraine_sponsor_resettlement_session')
-    });
 })

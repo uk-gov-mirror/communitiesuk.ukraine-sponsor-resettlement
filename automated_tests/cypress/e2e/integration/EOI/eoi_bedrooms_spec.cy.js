@@ -1,47 +1,115 @@
-const element = require('../../pages/EOI/eoi_bedrooms')
+const elements = require('../../page_elements/EOI/eoi_elements')
+const errors = require('../../../fixtures/eoi_bodytext_errors.json')
+const texts = require('../../../fixtures/eoi_bodytext.json')
 
 describe('[Frontend-UI]: EOI BEDROOM', function () {
-  this.beforeAll(() => {
-    cy.clearCookie('_ukraine_sponsor_resettlement_session')
-  });
-  Cypress.Cookies.defaults({ preserve: '_ukraine_sponsor_resettlement_session' })
-
   context('Bedroom Validation Errors', function () {
-    it("bedroom error validation [Null Values]", function () {
-      element.bedrooms_null()
+    beforeEach(function () {
+      cy.visit('/expression-of-interest/steps/12')
     })
-    it("bedroom error validation [Value: Single: 0 / Double: 0]", function () {
-      element.bedrooms_v1()
+    it("has the expected page heading and hints", function () {
+      cy.get(elements.page_heading).contains(texts.how_many_bedrooms_heading).should('be.visible')
+      cy.get(elements.hinttext).contains(texts.bedrooms_hint).should('be.visible')
     })
-    it("bedroom error validation [Value: Single: 0 / Double: Null]", function () {
-      element.bedrooms_v2()
+    it("displays four validation errors when bedroom fields are empty", function () {
+      cy.get(elements.continue_button).click()
+      cy.get(elements.sbedroom_error_label).should("contain.text", errors.enter_number_err_msg)
+      cy.get(elements.dbbedroom_error_label).should("contain.text", errors.enter_number_err_msg)
+      cy.get(elements.sbedroom_error_sbox_msg).should("contain.text", errors.enter_number_err_msg)
+      cy.get(elements.dbbedroom_error_sbox_msg).should("contain.text", errors.enter_number_err_msg)
     })
-    it("bedroom error validation [Value: Single: Null / Double: 0]", function () {
-      element.bedrooms_v3()
+    it("displays a validation error when single and double bedrooms are set to zero", function () {
+      cy.get(elements.sbedroom_textbox).type(0)
+      cy.get(elements.dbbedroom_textbox).type(0)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.error_summary_error_list_first).contains(errors.number_of_brooms_err_msg).should('be.visible')
+      cy.get(elements.sbedroom_error_label).should('not.exist')
+      cy.get(elements.dbbedroom_error_label).should('not.exist')
+      cy.get(elements.sbedroom_error_sbox_msg).should('not.exist')
+      cy.get(elements.dbbedroom_error_sbox_msg).should('not.exist')
     })
-    it("bedroom error validation [Value: Single: 5 / Double: Null]", function () {
-      element.bedrooms_v4()
+    it("displays a validation error when single bedroom is set to zero", function () {
+      cy.get(elements.sbedroom_textbox).type(0)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.error_summary_error_list_first).contains(errors.number_of_brooms_err_msg).should('be.visible')
+      cy.get(elements.sbedroom_error_label).should('not.exist')
+      cy.get(elements.dbbedroom_error_label).should('not.exist')
+      cy.get(elements.sbedroom_error_sbox_msg).should('not.exist')
+      cy.get(elements.dbbedroom_error_sbox_msg).should('not.exist')
     })
-    it("bedroom error validation [Value: Single: Null / Double: 8]", function () {
-      element.bedrooms_v5()
+    it("displays a validation error when double bedroom is set to zero", function () {
+      cy.get(elements.dbbedroom_textbox).type(0)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.error_summary_error_list_first).contains(errors.number_of_brooms_err_msg).should('be.visible')
+      cy.get(elements.sbedroom_error_label).should('not.exist')
+      cy.get(elements.dbbedroom_error_label).should('not.exist')
+      cy.get(elements.sbedroom_error_sbox_msg).should('not.exist')
+      cy.get(elements.dbbedroom_error_sbox_msg).should('not.exist')
     })
-    it("bedroom error validation [Value: Single: 11 / Double: 15]", function () {
-      element.bedrooms_v6()
+    it("displays a validation error when single bedroom is filled and double bedroom is empty", function () {
+      cy.get(elements.sbedroom_textbox).type(5)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.sbedroom_error_label).should('not.exist')
+      cy.get(elements.dbbedroom_error_label).should("contain.text", errors.enter_number_err_msg)
+      cy.get(elements.sbedroom_error_sbox_msg).should('not.exist')
+      cy.get(elements.dbbedroom_error_sbox_msg).should("contain.text", errors.enter_number_err_msg)
     })
-    it("bedroom error validation [Value: Single: 9 / Double: 11]", function () {
-      element.bedrooms_v7()
+    it("displays a validation error when single bedroom is empty and double bedroom is filled", function () {
+      cy.get(elements.dbbedroom_textbox).type(8)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.sbedroom_error_label).should("contain.text", errors.enter_number_err_msg)
+      cy.get(elements.dbbedroom_error_label).should('not.exist')
+      cy.get(elements.sbedroom_error_sbox_msg).should("contain.text", errors.enter_number_err_msg)
+      cy.get(elements.dbbedroom_error_sbox_msg).should('not.exist')
     })
-    it("bedroom error validation [Value: Single: 11 / Double: 9]", function () {
-      element.bedrooms_v8()
+    it("displays two validation errors when single and double bedroom are invalid (over 9)", function () {
+      cy.get(elements.sbedroom_textbox).type(11)
+      cy.get(elements.dbbedroom_textbox).type(15)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.sbedroom_error_label).should("contain.text", errors.enter_number_err_msg)
+      cy.get(elements.dbbedroom_error_label).should("contain.text", errors.enter_number_err_msg)
+      cy.get(elements.sbedroom_error_sbox_msg).should("contain.text", errors.enter_number_err_msg)
+      cy.get(elements.dbbedroom_error_sbox_msg).should("contain.text", errors.enter_number_err_msg)
     })
-    it("bedroom error validation [Value: Single: 0 / Double: 9]", function () {
-      element.bedrooms_v9()
+    it("displays a validation error when single bedroom is filled and double bedroom is invalid (over 9)", function () {
+      cy.get(elements.sbedroom_textbox).type(9)
+      cy.get(elements.dbbedroom_textbox).type(11)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.sbedroom_error_label).should('not.exist')
+      cy.get(elements.dbbedroom_error_label).should("contain.text", errors.enter_number_err_msg)
+      cy.get(elements.sbedroom_error_sbox_msg).should('not.exist')
+      cy.get(elements.dbbedroom_error_sbox_msg).should("contain.text", errors.enter_number_err_msg)
     })
-    it("bedroom error validation [Value: Single: 0 / Double: 9]", function () {
-      element.bedrooms_v10()
+    it("displays a validation error when single bedroom is invalid (over 9) and double bedroom is filled", function () {
+      cy.get(elements.sbedroom_textbox).type(11)
+      cy.get(elements.dbbedroom_textbox).type(9)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.sbedroom_error_label).should("contain.text", errors.enter_number_err_msg)
+      cy.get(elements.dbbedroom_error_label).should('not.exist')
+      cy.get(elements.sbedroom_error_sbox_msg).should("contain.text", errors.enter_number_err_msg)
+      cy.get(elements.dbbedroom_error_sbox_msg).should('not.exist') 
     })
-    this.afterAll(() => {
-      cy.clearCookie('_ukraine_sponsor_resettlement_session')
-    });
+    it("displays the next page heading when single bedroom is zero and double bedroom is filled", function () {
+      cy.get(elements.sbedroom_textbox).type(0)
+      cy.get(elements.dbbedroom_textbox).type(9)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.hinttext).contains(texts.bedrooms_hint).should('not.exist')
+      cy.get(elements.page_heading).should("contain.text", texts.step_free_access_heading)
+      cy.get(elements.sbedroom_error_label).should('not.exist')
+      cy.get(elements.dbbedroom_error_label).should('not.exist')
+      cy.get(elements.sbedroom_error_sbox_msg).should('not.exist')
+      cy.get(elements.dbbedroom_error_sbox_msg).should('not.exist') 
+    })
+    it("displays the next page heading when single bedroom is filled and double bedroom is zero", function () {
+      cy.get(elements.sbedroom_textbox).type(9)
+      cy.get(elements.dbbedroom_textbox).type(0)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.hinttext).contains(texts.bedrooms_hint).should('not.exist')
+      cy.get(elements.page_heading).should("contain.text", texts.step_free_access_heading)
+      cy.get(elements.sbedroom_error_label).should('not.exist')
+      cy.get(elements.dbbedroom_error_label).should('not.exist')
+      cy.get(elements.sbedroom_error_sbox_msg).should('not.exist')
+      cy.get(elements.dbbedroom_error_sbox_msg).should('not.exist') 
+    })
   })
 })

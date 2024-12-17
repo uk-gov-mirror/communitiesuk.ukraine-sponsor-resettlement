@@ -1,11 +1,6 @@
 const alfa = require('../../pages/Service/cookies')
 
 describe('[Frontend-UI]: COOKIES PAGE', function () {
-  this.beforeAll(() => {
-    cy.clearCookie('_ukraine_sponsor_resettlement_session')
-  });
-  Cypress.Cookies.defaults({ preserve: '_ukraine_sponsor_resettlement_session' })
-
   context('Cookies Page', function () {
     it('back_to link', function () {
       alfa.eoi_cookies_page_back_link()
@@ -22,7 +17,4 @@ describe('[Frontend-UI]: COOKIES PAGE', function () {
       alfa.banner_hidden_after_clicking_goback_to_page_link()
     })
   })
-  this.afterEach(() => {
-    cy.clearCookie('_ukraine_sponsor_resettlement_session')
-  });
 })

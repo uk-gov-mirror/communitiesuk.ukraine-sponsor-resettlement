@@ -1,5 +1,4 @@
-const elements = require('../../page_elements/EOI/eoi_elements')
-const error = require('../../../fixtures/eoi_bodytext_error.json')
+
 import dayjs from 'dayjs'
 
 const day = dayjs().add(0, 'day').format('DD')
@@ -15,11 +14,7 @@ export const date_null = () => {
     cy.visit('/expression-of-interest/steps/9')
     cy.get(elements.cookies_accept).click().wait(Cypress.env('waitTime'))
     cy.get(elements.hide_cookie_msg).click().wait(Cypress.env('waitTime'))
-    cy.get(elements.start_hosting_heading).contains('How soon can you start hosting someone?').should('be.visible')
-    cy.get(elements.continue_button).click().wait(Cypress.env('waitTime'))
-    cy.get(elements.sdate_radiobtn_error_label).contains(error.radiobtn_error_msg).should('be.visible')
-    cy.get(elements.specific_date_radiobtn_error).click().wait(Cypress.env('waitTime'))
-    cy.get(elements.continue_button).click().wait(Cypress.env('waitTime'))
+
     startdate_err()
 }
 //one field filled

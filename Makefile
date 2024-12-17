@@ -2,6 +2,7 @@
 run:
 	# Start all dependencies using development configuration
 	docker compose up --detach
+	bundle exec rake db:migrate
 	PORT=8080 ./bin/dev
 
 .PHONY: test

@@ -9,5 +9,6 @@
   "consent_err_msg": "You must tick the box to continue",
   "err_summary_title_msg": "There is a problem",
   "start_date_err_msg": "Enter a valid start date",
-  "number_of_brooms_err_msg": "You must enter a number from 1 to 9 in either field"
+  "number_of_brooms_err_msg": "You must enter a number from 1 to 9 in either field",
+  "enter_number_err_msg": "You must enter a number from 0 to 9"
 }

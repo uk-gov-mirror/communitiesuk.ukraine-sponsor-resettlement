@@ -1,41 +1,73 @@
-const alfa = require('../../pages/EOI/eoi_adults_&_children')
+const elements = require('../../page_elements/EOI/eoi_elements')
+const texts = require('../../../fixtures/eoi_bodytext.json')
 
 describe('[Frontend-UI]: EOI ADULTS AND CHILDREN', function () {
-  this.beforeAll(() => {
-    cy.clearCookie('_ukraine_sponsor_resettlement_session')
-  });
-  Cypress.Cookies.defaults({ preserve: '_ukraine_sponsor_resettlement_session' })
-
   context('Adults and Children', function () {
-    it('adults and children [null values]', function () {
-      alfa.adults_and_children_nv()
+    beforeEach(function () {
+      cy.visit('/expression-of-interest/steps/10')
     })
-    it('adults and children [one value field filled, A:4/C:Null]', function () {
-      alfa.adults_and_children_v1()
+    it('has the expected page heading', function () {
+      cy.get(elements.page_heading).contains(texts.how_many_people_heading).should('be.visible')
     })
-    it('adults and children [one value field filled, A:Null/C:2]', function () {
-      alfa.adults_and_children_v2()
+    it('shows two validation errors when adults and children are empty', function () {
+      cy.get(elements.continue_button).click()
+      cy.get(elements.adults_error).should('exist')
+      cy.get(elements.children_error).should('exist')
     })
-    it('adults and children [one value field invalid, A:10/C:9]', function () {
-      alfa.adults_and_children_v3()
+    it('shows a validation error when children is empty]', function () {
+      cy.get(elements.adults_textbox).type(4)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.adults_error).should('not.exist')
+      cy.get(elements.children_error).should('exist')
     })
-    it('adults and children [one value field invalid, A:9/C:10]', function () {
-      alfa.adults_and_children_v4()
+    it('shows a validation error when adults is empty', function () {
+      cy.get(elements.children_textbox).type(2)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.adults_error).should('exist')
+      cy.get(elements.children_error).should('not.exist')
     })
-    it('adults and children [adults value field zero, children value field invalid A:0/C:20]', function () {
-      alfa.adults_and_children_v5()
+    it('shows a validation error when adults is invalid (over 9)', function () {
+      cy.get(elements.adults_textbox).type(10)
+      cy.get(elements.children_textbox).type(9)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.adults_error).should('exist')
+      cy.get(elements.children_error).should('not.exist')
     })
-    it('adults and children [adults value field invalid, children value field zero A:100/C:0]', function () {
-      alfa.adults_and_children_v6()
+    it('shows a validation error when there are too many children with adults', function () {
+      cy.get(elements.adults_textbox).type(9)
+      cy.get(elements.children_textbox).type(10)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.adults_error).should('not.exist')
+      cy.get(elements.children_error).should('exist')
     })
-    it('adults and children [both fields invalid A:1000/C:2000]', function () {
-      alfa.adults_and_children_v7()
+    it('shows two validation errors when there are children without adults', function () {
+      cy.get(elements.adults_textbox).type(0)
+      cy.get(elements.children_textbox).type(2)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.one_adult_living_w_children_error).should('exist')
+      cy.get(elements.children_error).should('not.exist')
     })
-    it('adults and children [both fields valid A:6/C:4]', function () {
-      alfa.adults_and_children_v8()
+    it('shows a validation error when there are too many adults and no children', function () {
+      cy.get(elements.adults_textbox).type(100)
+      cy.get(elements.children_textbox).type(0)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.adults_error).should('exist')
+      cy.get(elements.children_error).should('not.exist')
+    })
+    it('shows two validation errors when there are too many adults and children', function () {
+      cy.get(elements.adults_textbox).type(1000)
+      cy.get(elements.children_textbox).type(2000)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.adults_error).should('exist')
+      cy.get(elements.children_error).should('exist')
+    })
+    it('shows the next page when adults and children are valid', function () {
+      cy.get(elements.adults_textbox).type(6)
+      cy.get(elements.children_textbox).type(4)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.children_error).should('not.exist')
+      cy.get(elements.adults_error).should('not.exist')
+      cy.get(elements.page_heading).contains(texts.who_offer_heading)
     })
   })
-  this.afterAll(() => {
-    cy.clearCookie('_ukraine_sponsor_resettlement_session')
-  });
 })

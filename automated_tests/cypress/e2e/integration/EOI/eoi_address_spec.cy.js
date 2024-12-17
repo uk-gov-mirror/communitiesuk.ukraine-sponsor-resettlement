@@ -1,52 +1,189 @@
-const alfa = require('../../pages/EOI/eoi_address')
+const errors = require('../../../fixtures/eoi_bodytext_errors.json')
+const texts = require('../../../fixtures/eoi_bodytext.json')
+const secrets = require('../../../fixtures/eoi_bodytext_secrets.json')
+const elements = require('../../page_elements/EOI/eoi_elements')
 
 describe('[Frontend-UI]: EOI ADDRESS', function () {
-  this.beforeAll(() => {
-    cy.clearCookie('_ukraine_sponsor_resettlement_session')
-  });
- Cypress.Cookies.defaults({ preserve: '_ukraine_sponsor_resettlement_session' })
-
   context('Residential Address', function () {
-    it('residential address error validation [null values]', function () {
-      alfa.residential_address_nv()
+    beforeEach(function () {
+      cy.visit('/expression-of-interest/steps/4')
     })
-    it('residential address error validation [single character]', function () {
-      alfa.residential_address_sc()
+    it('has the expected page heading', function () {
+      cy.get(elements.page_heading).contains(texts.res_address_heading).should('be.visible')
     })
-    it('residential address error validation [two characters]', function () {
-      alfa.residential_address_tc()
+    it('shows three validation errors when residential address is empty', function () {
+      cy.get(elements.continue_button).click()
+      cy.get(elements.addressl1_error_label).contains(errors.addl1_err_msg).should('be.visible')
+      cy.get(elements.townorcity_error_label).contains(errors.townorcity_err_msg).should('be.visible')
+      cy.get(elements.postcode_error_label).contains(errors.postcode_err_msg).should('be.visible')
     })
-    it('residential address error validation [one text field valid]', function () {
-      alfa.residential_address_v1()
+    it('shows three validation errors when residential address is filled with single characters', function () {
+      cy.get(elements.addressl1_textbox).type('A')
+      cy.get(elements.townorcity_textbox).type('B')
+      cy.get(elements.postcode_textbox).type('C')
+      cy.get(elements.continue_button).click()
+      cy.get(elements.addressl1_error_label).contains(errors.addl1_err_msg).should('be.visible')
+      cy.get(elements.townorcity_error_label).contains(errors.townorcity_err_msg).should('be.visible')
+      cy.get(elements.postcode_error_label).contains(errors.postcode_err_msg).should('be.visible')
     })
-    it('residential address error validation [two text fields valid]', function () {
-      alfa.residential_address_v2()
+    it('shows three validation errors when residential address is filled with two characters', function () {
+      cy.get(elements.addressl1_textbox).type('@1')
+      cy.get(elements.townorcity_textbox).type('2*')
+      cy.get(elements.postcode_textbox).type('3^')
+      cy.get(elements.continue_button).click()
+      cy.get(elements.addressl1_error_label).contains(errors.addl1_err_msg).should('be.visible')
+      cy.get(elements.townorcity_error_label).contains(errors.townorcity_err_msg).should('be.visible')
+      cy.get(elements.postcode_error_label).contains(errors.postcode_err_msg).should('be.visible')
     })
-    it('residential address error validation [all text fields valid]', function () {
-      alfa.residential_address_av()
+    it('shows two validation errors when only address line 1 is filled', function () {
+      cy.get(elements.addressl1_textbox).type(secrets.building_no)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.addressl1_error_label).should('not.exist')
+      cy.get(elements.townorcity_error_label).contains(errors.townorcity_err_msg).should('be.visible')
+      cy.get(elements.postcode_error_label).contains(errors.postcode_err_msg).should('be.visible')
+    })
+    it('shows two validation errors when only town/city is filled', function () {
+      cy.get(elements.townorcity_textbox).type(secrets.city)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.addressl1_error_label).contains(errors.addl1_err_msg).should('be.visible')
+      cy.get(elements.townorcity_error_label).should('not.exist')
+      cy.get(elements.postcode_error_label).contains(errors.postcode_err_msg).should('be.visible')
+    })
+    it('shows two validation errors when only postcode is filled', function () {
+      cy.get(elements.postcode_textbox).type(secrets.postcode)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.addressl1_error_label).contains(errors.addl1_err_msg).should('be.visible')
+      cy.get(elements.townorcity_error_label).contains(errors.townorcity_err_msg).should('be.visible')
+      cy.get(elements.postcode_error_label).should('not.exist')
+    })
+    it('shows a validation error when the address is filled and postcode is invalid', function () {
+      cy.get(elements.addressl1_textbox).type(secrets.building_no)
+      cy.get(elements.townorcity_textbox).type(secrets.city)
+      cy.get(elements.postcode_textbox).clear().type("NW10")
+      cy.get(elements.continue_button).click()
+      cy.get(elements.addressl1_error_label).should('not.exist')
+      cy.get(elements.townorcity_error_label).should('not.exist')
+      cy.get(elements.postcode_error_label).contains(errors.postcode_err_msg).should('be.visible')
+    })
+    it('shows a validation error when the address is filled and town/city is invalid', function () {
+      cy.get(elements.addressl1_textbox).type(secrets.building_no)
+      cy.get(elements.townorcity_textbox).type('$$')
+      cy.get(elements.postcode_textbox).type(secrets.postcode)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.addressl1_error_label).should('not.exist')
+      cy.get(elements.townorcity_error_label).contains(errors.townorcity_err_msg).should('be.visible')
+      cy.get(elements.postcode_error).should('not.exist')
+    })
+    it('shows a validation error when the address is filled and address line 1 is invalid', function () {
+      cy.get(elements.addressl1_textbox).type('!!')
+      cy.get(elements.townorcity_textbox).type(secrets.city)
+      cy.get(elements.postcode_textbox).type(secrets.postcode)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.addressl1_error_label).contains(errors.addl1_err_msg).should('be.visible')
+      cy.get(elements.townorcity_error_label).should('not.exist')
+      cy.get(elements.postcode_error_label).should('not.exist')
+    })
+    it('shows the next page questions when the address is filled and valid', function () {
+      cy.get(elements.addressl1_textbox).type(secrets.building_no)
+      cy.get(elements.addressl2_textbox).type(secrets.street)
+      cy.get(elements.townorcity_textbox).type(secrets.city)
+      cy.get(elements.postcode_textbox).type(secrets.postcode)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.addressl1_error_label).should('not.exist')
+      cy.get(elements.townorcity_error_label).should('not.exist')
+      cy.get(elements.postcode_error_label).should('not.exist')
+      cy.get(elements.page_heading).contains(texts.dif_address_heading).should('be.visible')
     })
   })
+
   context('Offering Property Address', function () {
-    it('address of the property offering error validation [null values]', function () {
-      alfa.offering_property_address_nv()
+    beforeEach(function () {
+      cy.visit('/expression-of-interest/steps/6')
     })
-    it('address of the property offering error validation [single character]', function () {
-      alfa.offering_property_address_sc()
+    it('has the expected page heading', function () {
+      cy.get(elements.page_heading).contains(texts.off_address_heading).should('be.visible')
     })
-    it('address of the property offering error validation [two characters]', function () {
-      alfa.offering_property_address_tc()
+    it('shows three validation errors when offering property address is empty', function () {
+      cy.get(elements.continue_button).click()
+      cy.get(elements.offering_addressl1_error_label).contains(errors.addl1_err_msg).should('be.visible')
+      cy.get(elements.offering_townorcity_error_label).contains(errors.townorcity_err_msg).should('be.visible')
+      cy.get(elements.offering_postcode_error_label).contains(errors.postcode_err_msg).should('be.visible')
     })
-    it('address of the property offering error validation [one text field valid]', function () {
-      alfa.offering_property_address_v1()
+    it('shows three validation errors when offering property address is filled with single characters', function () {
+      cy.get(elements.offering_addressl1_textbox).type('A')
+      cy.get(elements.offering_townorcity_textbox).type('B')
+      cy.get(elements.offering_postcode_textbox).type("C")
+      cy.get(elements.continue_button).click()
+      cy.get(elements.offering_addressl1_error_label).contains(errors.addl1_err_msg).should('be.visible')
+      cy.get(elements.offering_townorcity_error_label).contains(errors.townorcity_err_msg).should('be.visible')
+      cy.get(elements.offering_postcode_error_label).contains(errors.postcode_err_msg).should('be.visible')
     })
-    it('address of the property offering error validation [two text fields valid]', function () {
-      alfa.offering_property_address_v2()
+    it('shows three validation errors when offering property address is filled with two characters', function () {
+      cy.get(elements.offering_addressl1_textbox).type('@!')
+      cy.get(elements.offering_townorcity_textbox).type('*£')
+      cy.get(elements.offering_postcode_textbox).type("12")
+      cy.get(elements.continue_button).click()
+      cy.get(elements.offering_addressl1_error_label).contains(errors.addl1_err_msg).should('be.visible')
+      cy.get(elements.offering_townorcity_error_label).contains(errors.townorcity_err_msg).should('be.visible')
+      cy.get(elements.offering_postcode_error_label).contains(errors.postcode_err_msg).should('be.visible')
     })
-    it('address of the property offering error validation [all text fields valid]', function () {
-      alfa.offering_property_address_av()
+    it('shows two validation errors when only address line 1 is filled', function () {
+      cy.get(elements.offering_addressl1_textbox).type(secrets.building_no)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.offering_addressl1_error_label).should('not.exist')
+      cy.get(elements.offering_townorcity_error_label).contains(errors.townorcity_err_msg).should('be.visible')
+      cy.get(elements.offering_postcode_error_label).contains(errors.postcode_err_msg).should('be.visible')
+    })
+    it('shows two validation errors when only town/city is filled', function () {
+      cy.get(elements.offering_townorcity_textbox).type(secrets.city)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.offering_addressl1_error_label).contains(errors.addl1_err_msg).should('be.visible')
+      cy.get(elements.offering_townorcity_error_label).should('not.exist')
+      cy.get(elements.offering_postcode_error_label).contains(errors.postcode_err_msg).should('be.visible')
+    })
+    it('shows two validation errors when only postcode is filled', function () {
+      cy.get(elements.offering_postcode_textbox).type(secrets.postcode)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.offering_addressl1_error_label).contains(errors.addl1_err_msg).should('be.visible')
+      cy.get(elements.offering_townorcity_error_label).contains(errors.townorcity_err_msg).should('be.visible')
+      cy.get(elements.offering_postcode_error_label).should('not.exist')
+    })
+    it('shows a validation error when the address is filled and postcode is invalid', function () {
+      cy.get(elements.offering_addressl1_textbox).type(secrets.building_no)
+      cy.get(elements.offering_townorcity_textbox).type(secrets.city)
+      cy.get(elements.offering_postcode_textbox).type('NW10')
+      cy.get(elements.continue_button).click()
+      cy.get(elements.offering_addressl1_error_label).should('not.exist')
+      cy.get(elements.offering_townorcity_error_label).should('not.exist')
+      cy.get(elements.offering_postcode_error_label).contains(errors.postcode_err_msg).should('be.visible')
+    })
+    it('shows a validation error when the address is filled and town/city is invalid', function () {
+      cy.get(elements.offering_addressl1_textbox).type(secrets.building_no)
+      cy.get(elements.offering_townorcity_textbox).type('$$')
+      cy.get(elements.offering_postcode_textbox).type(secrets.postcode)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.offering_addressl1_error_label).should('not.exist')
+      cy.get(elements.offering_townorcity_error_label).contains(errors.townorcity_err_msg).should('be.visible')
+    })
+    it('shows a validation error when the address is filled and address line 1 is invalid', function () {
+      cy.get(elements.offering_addressl1_textbox).type('!!')
+      cy.get(elements.offering_townorcity_textbox).type(secrets.city)
+      cy.get(elements.offering_postcode_textbox).type(secrets.postcode)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.offering_addressl1_error_label).contains(errors.addl1_err_msg).should('be.visible')
+      cy.get(elements.offering_townorcity_error_label).should('not.exist')
+      cy.get(elements.offering_postcode_error_label).should('not.exist')
+    })
+    it('shows the next page questions when the address is filled and valid', function () {
+      cy.get(elements.offering_addressl1_textbox).type(secrets.building_no)
+      cy.get(elements.offering_addressl2_textbox).type(secrets.street)
+      cy.get(elements.offering_townorcity_textbox).type(secrets.city)
+      cy.get(elements.offering_postcode_textbox).type(secrets.postcode)
+      cy.get(elements.continue_button).click()
+      cy.get(elements.offering_addressl1_error_label).should('not.exist')
+      cy.get(elements.offering_townorcity_error_label).should('not.exist')
+      cy.get(elements.offering_postcode_error_label).should('not.exist')
+      cy.get(elements.page_heading).contains(texts.new_property_heading).should('be.visible')
     })
   })
-  this.afterAll(() => {
-    cy.clearCookie('_ukraine_sponsor_resettlement_session')
-  });
 })

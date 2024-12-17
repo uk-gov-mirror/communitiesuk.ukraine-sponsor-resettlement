@@ -1,11 +1,6 @@
 const element = require('../../pages/EOI/eoi_phone_number')
 
 describe('[Frontend-UI]: EOI CONTACT TELEPHONE NUMBER', function () {
-  this.beforeAll(() => {
-    cy.clearCookie('_ukraine_sponsor_resettlement_session')
-  });
- // Cypress.Cookies.defaults({ preserve: '_ukraine_sponsor_resettlement_session' })
-
   context('Contact Telephone Number Validation[Telephone Number Page : Invalid]', function () {
     it("phone number invalid [blank]", function () {
       element.phone_blank()
@@ -74,7 +69,4 @@ describe('[Frontend-UI]: EOI CONTACT TELEPHONE NUMBER', function () {
       element.phone_err_plus()
     })
   })
-  this.afterAll(() => {
-    cy.clearCookie('_ukraine_sponsor_resettlement_session')
-  });
 })
